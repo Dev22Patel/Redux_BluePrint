@@ -5,6 +5,7 @@ import HomePage from './Pages/HomePage'
 import CartPage from './Pages/CartPage'
 import { Provider } from 'react-redux'
 import { store } from './redux/store'
+import ProductPage from './Pages/ProductPage'
 export default function App() {
   return (
     <Provider store={store}>
@@ -14,6 +15,8 @@ export default function App() {
             <Route path="/" element={<Layout />}>
               <Route index element={<HomePage />} />
               <Route path="cart" element={<CartPage />} />
+              <Route path="products/:id" element={<ProductPage />} />
+              <Route path="category/:name" element={<HomePage />} />
             </Route>
           </Routes>
         </Router>

@@ -1,10 +1,10 @@
 import { ReactElement,JSXElementConstructor,ReactNode,ReactPortal } from "react";
 
 export interface Product {
+    title: string | number | boolean | ReactPortal | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined;
     id: number;
-    name: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | null | undefined;
     price: number;
-    category:string;
+    category:ReactNode;
   }
 
 export interface CartItem extends Product {

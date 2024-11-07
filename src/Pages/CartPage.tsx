@@ -1,4 +1,3 @@
-// CartPage.tsx
 import { Minus, Plus, Trash2 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
@@ -6,7 +5,14 @@ import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useSelector, useDispatch } from 'react-redux'
 import { updateItem, removeItem } from '@/redux/slices/CartSlice'
-import { Key, ReactNode } from 'react'
+import { ReactNode } from 'react'
+
+type CartItem = {
+  id: number;
+  name: ReactNode;
+  price: number;
+  quantity: number;
+};
 
 export default function CartPage() {
   const dispatch = useDispatch()
@@ -40,8 +46,8 @@ export default function CartPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {cart.items.map((item: { id: Key | null | undefined; name: ReactNode; price: number; quantity: number }) => (
-                <TableRow key={item.id}>
+              {cart.items.map((item: CartItem) => (
+                <TableRow key={item.id ?? Date.now()}>
                   <TableCell>{item.name}</TableCell>
                   <TableCell>${item.price.toFixed(2)}</TableCell>
                   <TableCell>
@@ -49,20 +55,41 @@ export default function CartPage() {
                       <Button
                         variant="outline"
                         size="icon"
-                        onClick={() => dispatch(updateItem({ id: item.id, quantity: item.quantity > 1 ? item.quantity - 1 : 1 }))}
+                        onClick={() =>
+                          dispatch(
+                            updateItem({
+                              id: item.id,
+                              quantity: item.quantity > 1 ? item.quantity - 1 : 1,
+                            })
+                          )
+                        }
                       >
                         <Minus className="h-4 w-4" />
                       </Button>
                       <Input
                         type="number"
                         value={item.quantity}
-                        onChange={(e) => dispatch(updateItem({ id: item.id, quantity: parseInt(e.target.value) || 1 }))}
+                        onChange={(e) =>
+                          dispatch(
+                            updateItem({
+                              id: item.id,
+                              quantity: parseInt(e.target.value) || 1,
+                            })
+                          )
+                        }
                         className="w-16 text-center"
                       />
                       <Button
                         variant="outline"
                         size="icon"
-                        onClick={() => dispatch(updateItem({ id: item.id, quantity: item.quantity + 1 }))}
+                        onClick={() =>
+                          dispatch(
+                            updateItem({
+                              id: item.id,
+                              quantity: item.quantity + 1,
+                            })
+                          )
+                        }
                       >
                         <Plus className="h-4 w-4" />
                       </Button>
@@ -70,7 +97,7 @@ export default function CartPage() {
                   </TableCell>
                   <TableCell>${(item.price * item.quantity).toFixed(2)}</TableCell>
                   <TableCell>
-                    <Button variant="destructive" size="icon" onClick={() => dispatch(removeItem(item.id))}>
+                    <Button variant="destructive" size="icon" onClick={() => dispatch(removeItem(item.id ?? 0))}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </TableCell>
@@ -79,9 +106,7 @@ export default function CartPage() {
             </TableBody>
           </Table>
           <div className="mt-6 flex flex-col sm:flex-row justify-between items-center">
-            <div className="text-2xl font-bold mb-4 sm:mb-0">
-              Total: ${totalPrice.toFixed(2)}
-            </div>
+            <div className="text-2xl font-bold mb-4 sm:mb-0">Total: ${totalPrice.toFixed(2)}</div>
             <div className="space-x-4">
               <Button variant="outline" asChild>
                 <Link to="/">Continue Shopping</Link>
