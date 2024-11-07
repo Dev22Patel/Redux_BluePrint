@@ -8,6 +8,7 @@ import { updateItem, removeItem } from '@/redux/slices/CartSlice'
 import { ReactNode } from 'react'
 
 type CartItem = {
+  title: ReactNode
   id: number;
   name: ReactNode;
   price: number;
@@ -48,7 +49,7 @@ export default function CartPage() {
             <TableBody>
               {cart.items.map((item: CartItem) => (
                 <TableRow key={item.id ?? Date.now()}>
-                  <TableCell>{item.name}</TableCell>
+                  <TableCell>{item.title}</TableCell>
                   <TableCell>${item.price.toFixed(2)}</TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
