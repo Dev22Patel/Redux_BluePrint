@@ -1,27 +1,35 @@
+// CartPage.tsx
 import { Minus, Plus, Trash2 } from 'lucide-react'
-import { Product } from '../components/Types'
+import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { useSelector, useDispatch } from 'react-redux'
+import { updateItem, removeItem } from '@/redux/slices/CartSlice'
+import { Key, ReactNode } from 'react'
 
-interface CartPageProps {
-  cart: (Product & { quantity: number })[]
-  updateCartItem: (id: number, quantity: number) => void
-  removeFromCart: (id: number) => void
-  onContinueShopping: () => void
-}
+export default function CartPage() {
+  const dispatch = useDispatch()
+  const cart = useSelector((state: any) => state.cart)
 
-export default function CartPage({ cart, updateCartItem, removeFromCart, onContinueShopping }: CartPageProps) {
-  const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const totalPrice = cart.items.reduce((sum: number, item: { price: number; quantity: number }) => {
+    const itemQuantity = typeof item.quantity === 'string' ? parseInt(item.quantity) : item.quantity
+    return sum + item.price * itemQuantity
+  }, 0)
 
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">Your Cart</h1>
-      {cart.length === 0 ? (
-        <p>Your cart is empty</p>
+      {cart.items.length === 0 ? (
+        <div className="text-center">
+          <p className="mb-4">Your cart is empty</p>
+          <Button asChild>
+            <Link to="/">Start Shopping</Link>
+          </Button>
+        </div>
       ) : (
         <>
-          <Table>
+          <Table className="w-full">
             <TableHeader>
               <TableRow>
                 <TableHead>Product</TableHead>
@@ -32,7 +40,7 @@ export default function CartPage({ cart, updateCartItem, removeFromCart, onConti
               </TableRow>
             </TableHeader>
             <TableBody>
-              {cart.map((item) => (
+              {cart.items.map((item: { id: Key | null | undefined; name: ReactNode; price: number; quantity: number }) => (
                 <TableRow key={item.id}>
                   <TableCell>{item.name}</TableCell>
                   <TableCell>${item.price.toFixed(2)}</TableCell>
@@ -41,20 +49,20 @@ export default function CartPage({ cart, updateCartItem, removeFromCart, onConti
                       <Button
                         variant="outline"
                         size="icon"
-                        onClick={() => updateCartItem(item.id, item.quantity - 1)}
+                        onClick={() => dispatch(updateItem({ id: item.id, quantity: item.quantity > 1 ? item.quantity - 1 : 1 }))}
                       >
                         <Minus className="h-4 w-4" />
                       </Button>
                       <Input
                         type="number"
                         value={item.quantity}
-                        onChange={(e) => updateCartItem(item.id, parseInt(e.target.value) || 0)}
+                        onChange={(e) => dispatch(updateItem({ id: item.id, quantity: parseInt(e.target.value) || 1 }))}
                         className="w-16 text-center"
                       />
                       <Button
                         variant="outline"
                         size="icon"
-                        onClick={() => updateCartItem(item.id, item.quantity + 1)}
+                        onClick={() => dispatch(updateItem({ id: item.id, quantity: item.quantity + 1 }))}
                       >
                         <Plus className="h-4 w-4" />
                       </Button>
@@ -62,11 +70,7 @@ export default function CartPage({ cart, updateCartItem, removeFromCart, onConti
                   </TableCell>
                   <TableCell>${(item.price * item.quantity).toFixed(2)}</TableCell>
                   <TableCell>
-                    <Button
-                      variant="destructive"
-                      size="icon"
-                      onClick={() => removeFromCart(item.id)}
-                    >
+                    <Button variant="destructive" size="icon" onClick={() => dispatch(removeItem(item.id))}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </TableCell>
@@ -74,17 +78,15 @@ export default function CartPage({ cart, updateCartItem, removeFromCart, onConti
               ))}
             </TableBody>
           </Table>
-          <div className="mt-6 flex justify-between items-center">
-            <div className="text-2xl font-bold">
+          <div className="mt-6 flex flex-col sm:flex-row justify-between items-center">
+            <div className="text-2xl font-bold mb-4 sm:mb-0">
               Total: ${totalPrice.toFixed(2)}
             </div>
             <div className="space-x-4">
-              <Button variant="outline" onClick={onContinueShopping}>
-                Continue Shopping
+              <Button variant="outline" asChild>
+                <Link to="/">Continue Shopping</Link>
               </Button>
-              <Button onClick={() => alert('Proceeding to checkout')}>
-                Checkout
-              </Button>
+              <Button onClick={() => alert('Proceeding to checkout')}>Checkout</Button>
             </div>
           </div>
         </>

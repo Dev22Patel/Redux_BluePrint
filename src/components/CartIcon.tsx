@@ -1,29 +1,27 @@
 import { ShoppingCart } from 'lucide-react'
-import { CartItem } from './Types'
+import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
+import { useSelector } from 'react-redux'
 
-interface CartIconProps {
-  cart: CartItem[]
-  onCartClick: () => void
-}
-
-
-export default function CartIcon({ cart, onCartClick }: CartIconProps) {
-  const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 1), 0)
+export default function CartIcon() {
+  const cart = useSelector((state: any) => state.cart);
+  const totalItems = cart.items.reduce((sum: number, item: { quantity: number }) => sum + item.quantity, 0);
 
   return (
     <Button
       variant="outline"
       className="relative"
-      onClick={onCartClick}
+      asChild
       aria-label={`View cart with ${totalItems} items`}
     >
-      <ShoppingCart className="h-5 w-5" />
-      {totalItems > 0 && (
-        <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs">
-          {totalItems}
-        </span>
-      )}
+      <Link to="/cart">
+        <ShoppingCart className="h-5 w-5" />
+        {totalItems > 0 && (
+          <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs">
+            {totalItems}
+          </span>
+        )}
+      </Link>
     </Button>
   )
 }
